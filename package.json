@@ -1,0 +1,41 @@
+{
+  "name": "prostapaczka-amz-order-shipments",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "webpack",
+    "run": "nodemon build/index.js --ignore *.json",
+    "test": "mocha -r ts-node/register src/**/*.spec.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jerzakm/prostapaczka-amz-order-shipments.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jerzakm/prostapaczka-amz-order-shipments/issues"
+  },
+  "homepage": "https://github.com/jerzakm/prostapaczka-amz-order-shipments#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "node-firebird": "^0.8.9"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^7.0.2",
+    "@types/node": "^13.13.1",
+    "chai": "^4.2.0",
+    "mocha": "^7.1.1",
+    "nodemon": "^2.0.3",
+    "ts-loader": "^7.0.1",
+    "ts-node": "^8.9.0",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-node-externals": "^1.7.2",
+    "webpack-shell-plugin": "^0.5.0"
+  }
+}
