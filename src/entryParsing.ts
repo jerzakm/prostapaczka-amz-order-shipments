@@ -6,3 +6,7 @@ export const isAmazonOrder = (string: string) => {
     orderId: matched ? matched[0] : null
   }
 }
+
+export const formatDate = (dateString: string) => {
+  return dateString.substring(0, 10)
+}

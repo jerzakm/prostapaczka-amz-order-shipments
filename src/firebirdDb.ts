@@ -1,5 +1,6 @@
 import * as envLoad from 'dotenv'
 import * as Firebird from 'node-firebird'
+import { isAmazonOrder } from './entryParsing'
 
 export const getDbCredentials = () => {
   envLoad.config()
@@ -22,7 +23,7 @@ export const queryPackages = ({ host, port, database, user, password }, starting
   WHERE ID>${startingId}
   ;`
 
-  console.log(options)
+  const parsedResults: SentPackage[] = []
 
   Firebird.attach(options, function (err, db) {
 
@@ -30,7 +31,18 @@ export const queryPackages = ({ host, port, database, user, password }, starting
       throw err;
 
     db.query(sqlQuery, function (err, result) {
-      console.log(err, result)
+      console.log(result[0])
+      for (const entry of result) {
+        const order = isAmazonOrder(`${entry.OPIS_ZAWARTOSCI} ${entry.UWAGI}`)
+        if (order.matched) {
+          parsedResults.push({
+            amazonOrder: order.orderId,
+            trackingId: entry.NUMER_LP,
+            carrier: entry.NAZWA_KONTA,
+            date: entry.DATA_EKSPORTU
+          })
+        }
+      }
       db.detach();
     });
 

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import 'mocha';
 
-import { isAmazonOrder } from './entryParsing'
+import { isAmazonOrder, formatDate } from './entryParsing'
 
 
 
@@ -19,4 +19,12 @@ describe('PARSER => Check if string contains valid Amazon order Id and return', 
     expect(result.orderId).to.equal(null);
   });
 
+});
+
+describe('PARSER => format PP date for Amazon file', () => {
+
+  it('example formatting', () => {
+    const result = formatDate(`2019-01-28T08:24:02.224Z`);
+    expect(result).to.equal('2019-01-28');
+  });
 });
