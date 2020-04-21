@@ -1,6 +1,6 @@
 import * as envLoad from 'dotenv'
 import * as Firebird from 'node-firebird'
-import { isAmazonOrder } from './entryParsing'
+import { isAmazonOrder, formatDate } from './entryParsing'
 
 export const getDbCredentials = () => {
   envLoad.config()
@@ -15,7 +15,7 @@ export const getDbCredentials = () => {
   return { host, port, database, user, password }
 }
 
-export const queryPackages = ({ host, port, database, user, password }, startingId = 66000) => {
+export const queryPackages = async ({ host, port, database, user, password }, startingId = 66000) => {
   const options = { host, port, database, user, password, lowercase_keys: false, role: null, pageSize: 4096 }
 
   const sqlQuery = `SELECT ID, NUMER_LP, NUMER_PMS, OPIS_ZAWARTOSCI, UWAGI, DATA_EKSPORTU, LI_PACZEK, WAGA_PACZEK, ODBIORCA_NAZWA_KRAJU, NAZWA_KONTA
@@ -23,34 +23,42 @@ export const queryPackages = ({ host, port, database, user, password }, starting
   WHERE ID>${startingId}
   ;`
 
-  const parsedResults: SentPackage[] = []
+  return new Promise((resolve, reject) => {
+    const parsedResults: SentPackage[] = []
+    let lastId = 0
+    Firebird.attach(options, function (err, db) {
 
-  Firebird.attach(options, function (err, db) {
-
-    if (err)
-      throw err;
-
-    db.query(sqlQuery, function (err, result) {
-      console.log(result[0])
-      for (const entry of result) {
-        const order = isAmazonOrder(`${entry.OPIS_ZAWARTOSCI} ${entry.UWAGI}`)
-        if (order.matched) {
-          parsedResults.push({
-            amazonOrder: order.orderId,
-            trackingId: entry.NUMER_LP,
-            carrier: entry.NAZWA_KONTA,
-            date: entry.DATA_EKSPORTU
-          })
-        }
+      if (err) {
+        reject(err)
       }
-      db.detach();
-    });
+      console.log('starting db query..')
 
+      db.query(sqlQuery, function (err, result) {
+        for (const entry of result) {
+          const order = isAmazonOrder(`${entry.OPIS_ZAWARTOSCI} ${entry.UWAGI}`)
+          if (order.matched) {
+            if (parseInt(entry.ID, 10) > lastId) {
+              lastId = parseInt(entry.ID, 10)
+              console.log(lastId)
+            }
+            parsedResults.push({
+              amazonOrder: order.orderId,
+              trackingId: entry.NUMER_LP,
+              carrier: entry.NAZWA_KONTA,
+              date: formatDate(new Date(entry.DATA_EKSPORTU).toISOString())
+            })
+          }
+        }
+        db.detach();
+        resolve({ parsedResults, lastId })
+      });
+
+    });
   });
 }
 
 
-interface SentPackage {
+export interface SentPackage {
   amazonOrder: String
   trackingId: String
   carrier: String
