@@ -18,7 +18,7 @@ export const packageArrayToFile = (packages: SentPackage[]) => {
   let tabSeparatedString = `order-id\torder-item-id\tquantity\tship-date\tcarrier-code\tcarrier-name\ttracking-number\tship-method\ttransparency_code\n`
 
   for (const p of packages) {
-    tabSeparatedString += `${p.amazonOrder}\t\t\t${p.date}\t${p.carrier}\t${p.carrier}\t${p.trackingId}\t\t\n`
+    tabSeparatedString += `${p.amazonOrder}\t\t\t${p.date}\t${p.carrier}\t\t${p.trackingId}\t\t\n`
   }
   return tabSeparatedString
 }
